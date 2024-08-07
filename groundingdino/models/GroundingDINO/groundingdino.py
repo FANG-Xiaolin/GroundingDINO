@@ -15,6 +15,7 @@
 # Copyright (c) 2020 SenseTime. All Rights Reserved.
 # ------------------------------------------------------------------------
 import copy
+import logging
 from typing import List
 
 import torch
@@ -103,6 +104,11 @@ class GroundingDINO(nn.Module):
         self.dn_label_noise_ratio = dn_label_noise_ratio
         self.dn_labelbook_size = dn_labelbook_size
 
+        # mute BertModel.from_pretrained warning
+        loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+        for logger in loggers:
+            if "transformers" in logger.name.lower():
+                logger.setLevel(logging.ERROR)
         # bert
         self.tokenizer = get_tokenlizer.get_tokenlizer(text_encoder_type)
         self.bert = get_tokenlizer.get_pretrained_language_model(text_encoder_type)
